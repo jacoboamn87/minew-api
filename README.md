@@ -1,4 +1,4 @@
-
+<!--
 [mailjet]:(http://www.mailjet.com/)
 [api_credential]: https://app.mailjet.com/account/api_keys
 [doc]: http://dev.mailjet.com/guides/?python#
@@ -163,7 +163,7 @@ filters = {
 result = mailjet.statistics_linkClick.get(filters=filters)
 print result.status_code
 print result.json()
-``` 
+```
 
 ## Request examples
 
@@ -365,4 +365,4 @@ Feel free to ask anything, and contribute:
 - Add documentation to it.
 - Commit, push, open a pull request and voila.
 
-If you have suggestions on how to improve the guides, please submit an issue in our [Official API Documentation repo](https://github.com/mailjet/api-documentation).
+If you have suggestions on how to improve the guides, please submit an issue in our [Official API Documentation repo](https://github.com/mailjet/api-documentation). -->
