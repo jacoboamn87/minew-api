@@ -11,20 +11,40 @@ class MinewAPIClient(object):
     """
 
     BASE_URL = "https://cloud.minewtag.com/apis/"
+    DATA_ADD_ENDPOINT = "/esl/data/add"
+    DATA_BINDING_LIST_ENDPOINT = "/esl/data/bindingList"
+    DATA_DELETE_ENDPOINT = "/esl/data/delete"
+    DATA_LIST_ENDPOINT = "/esl/data/list"
+    DATA_UPDATE_ENDPOINT = "/esl/data/update"
     GATEWAY_ADD_ENDPOINT = "/esl/gateway/add"
     GATEWAY_DELETE_ENDPOINT = "/esl/gateway/delete"
     GATEWAY_LIST_ENDPOINT = "/esl/gateway/listPage"
+    GATEWAY_RESTART_ENDPOINT = "/esl/gateway/restart"
     GATEWAY_UPDATE_ENDPOINT = "/esl/gateway/update"
+    GATEWAY_UPGRADE_ENDPOINT = "/esl/gateway/upgrade"
+    LABEL_ADD_ENDPOINT = "/esl/label/add"
+    LABEL_BINDING_ENDPOINT = "/esl/label/binding"
+    LABEL_DELETE_ENDPOINT = "/esl/label/delete"
+    LABEL_FIND_BY_MAC_ENDPOINT = "/esl/label/findByMac"
+    LABEL_FLASH_ENDPOINT = "/esl/label/flash"
+    LABEL_LIST_ENDPOINT = "/esl/label/list"
+    LABEL_REFRESH_ENDPOINT = "/esl/label/refresh"
+    LABEL_UNBINDING_ENDPOINT = "/esl/label/unbinding"
+    LABEL_UPDATE_ENDPOINT = "/esl/label/update"
+    LABEL_UPGRADE_ENDPOINT = "/esl/label/upgrade"
     LOGIN_ENDPOINT = "/action/login"
-    STORE_ADD_ENDPOINT = "/esl/store/add"
-    STORE_UPDATE_ENDPOINT = "/esl/store/update"
     STORE_ACTIVE_ENDPOINT = "/esl/store/openOrClose"
+    STORE_ADD_ENDPOINT = "/esl/store/add"
     STORE_LIST_ENDPOINT = "/esl/store/list"
-    STORE_WARNING_ENDPOINT = "/esl/warning/findAllWarnings"
     STORE_LOGS_ENDPOINT = "/esl/logs/queryList"
+    STORE_UPDATE_ENDPOINT = "/esl/store/update"
+    STORE_WARNING_ENDPOINT = "/esl/warning/findAllWarnings"
+    TEMPLATE_ADD_ENDPOINT = "/esl/template/add"
+    TEMPLATE_DELETE_ENDPOINT = "/esl/template/delete"
     TEMPLATE_LIST_ENDPOINT = "/esl/template/findAll"
-    TEMPLATE_PREVIEW_UNBOUND_ENDPOINT = "/esl/template/previewTemplate"
     TEMPLATE_PREVIEW_BOUND_ENDPOINT = "/esl/template/preview"
+    TEMPLATE_PREVIEW_UNBOUND_ENDPOINT = "/esl/template/previewTemplate"
+    TEMPLATE_UPDATE_ENDPOINT = "/esl/template/update"
 
     base_url = None
     token = None
@@ -649,6 +669,603 @@ class MinewAPIClient(object):
         _, _, msg = self.parse_response(
             response,
             "Gateway modification failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+        
+    # Label API Methods
+    def label_add(self, mac: str, store_id: str, demo_name: str) -> str:
+        """
+        Adds a new label to the system.
+
+        Args:
+            mac (str): Label MAC address
+            store_id (str): Store ID
+            demo_name (str): Template name to be used
+
+        Returns:
+            str: Label ID if successful
+
+        API URL: /esl/label/add
+        Request Method: POST
+        """
+        data = {
+            "mac": mac,
+            "storeId": store_id,
+            "demoName": demo_name
+        }
+
+        response = self.post(self.LABEL_ADD_ENDPOINT, data)
+
+        response, _, _ = self.parse_response(
+            response,
+            "Label add failed: Code: {code} - Message: {msg}"
+        )
+
+        return response.get("data", {}).get("labelId", "")
+
+    def label_list(self, store_id: str, page: int, size: int, condition: str = None) -> dict:
+        """
+        Retrieves a list of labels in a store.
+
+        Args:
+            store_id (str): Store ID
+            page (int): Page number for pagination
+            size (int): Number of items per page
+            condition (str, optional): Filter condition (e.g., label MAC or name)
+
+        Returns:
+            dict: Dictionary containing label information and pagination details
+
+        API URL: /esl/label/list
+        Request Method: GET
+        """
+        params = {
+            "storeId": store_id,
+            "page": page,
+            "size": size
+        }
+
+        if condition:
+            params["condition"] = condition
+
+        response = self.get(self.LABEL_LIST_ENDPOINT, params)
+
+        response, _, _ = self.parse_response(
+            response,
+            "Label list retrieval failed: Code: {code} - Message: {msg}"
+        )
+
+        return response
+
+    def label_delete(self, label_id: str, store_id: str) -> str:
+        """
+        Deletes a label from the system.
+
+        Args:
+            label_id (str): Label ID
+            store_id (str): Store ID
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/label/delete
+        Request Method: GET
+        """
+        params = {
+            "id": label_id,
+            "storeId": store_id
+        }
+
+        response = self.get(self.LABEL_DELETE_ENDPOINT, params)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Label delete failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def label_update(self, label_id: str, name: str) -> str:
+        """
+        Updates an existing label's information.
+
+        Args:
+            label_id (str): Label ID
+            name (str): New label name
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/label/update
+        Request Method: POST
+        """
+        data = {
+            "id": label_id,
+            "name": name
+        }
+
+        response = self.post(self.LABEL_UPDATE_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Label update failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def label_binding(self, label_id: str, data_id: str, store_id: str) -> str:
+        """
+        Binds a label to a product/data item.
+
+        Args:
+            label_id (str): Label ID
+            data_id (str): Data/Product ID
+            store_id (str): Store ID
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/label/binding
+        Request Method: POST
+        """
+        data = {
+            "labelId": label_id,
+            "dataId": data_id,
+            "storeId": store_id
+        }
+
+        response = self.post(self.LABEL_BINDING_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Label binding failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def label_refresh(self, label_ids: list, store_id: str) -> str:
+        """
+        Refreshes the display of one or more labels.
+
+        Args:
+            label_ids (list): List of label IDs to refresh
+            store_id (str): Store ID
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/label/refresh
+        Request Method: POST
+        """
+        data = {
+            "labelIds": label_ids,
+            "storeId": store_id
+        }
+
+        response = self.post(self.LABEL_REFRESH_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Label refresh failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+        
+    # Data API Methods
+    def data_add(self, store_id: str, product_data: dict) -> str:
+        """
+        Adds product data to the system.
+
+        Args:
+            store_id (str): Store ID
+            product_data (dict): Dictionary containing product information
+
+        Returns:
+            str: Data ID if successful
+
+        API URL: /esl/data/add
+        Request Method: POST
+        """
+        data = {
+            "storeId": store_id,
+            **product_data
+        }
+
+        response = self.post(self.DATA_ADD_ENDPOINT, data)
+
+        response, _, _ = self.parse_response(
+            response,
+            "Data add failed: Code: {code} - Message: {msg}"
+        )
+
+        return response.get("data", {}).get("dataId", "")
+
+    def data_update(self, data_id: str, store_id: str, product_data: dict) -> str:
+        """
+        Updates existing product data.
+
+        Args:
+            data_id (str): Data ID
+            store_id (str): Store ID
+            product_data (dict): Dictionary containing updated product information
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/data/update
+        Request Method: PUT
+        """
+        data = {
+            "id": data_id,
+            "storeId": store_id,
+            **product_data
+        }
+
+        response = self.put(self.DATA_UPDATE_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Data update failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def data_delete(self, data_id: str, store_id: str) -> str:
+        """
+        Deletes product data from the system.
+
+        Args:
+            data_id (str): Data ID
+            store_id (str): Store ID
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/data/delete
+        Request Method: GET
+        """
+        params = {
+            "id": data_id,
+            "storeId": store_id
+        }
+
+        response = self.get(self.DATA_DELETE_ENDPOINT, params)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Data delete failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def data_list(self, store_id: str, page: int, size: int, condition: str = None) -> dict:
+        """
+        Retrieves a list of product data items.
+
+        Args:
+            store_id (str): Store ID
+            page (int): Page number for pagination
+            size (int): Number of items per page
+            condition (str, optional): Filter condition (e.g., product name)
+
+        Returns:
+            dict: Dictionary containing product data information and pagination details
+
+        API URL: /esl/data/list
+        Request Method: GET
+        """
+        params = {
+            "storeId": store_id,
+            "page": page,
+            "size": size
+        }
+
+        if condition:
+            params["condition"] = condition
+
+        response = self.get(self.DATA_LIST_ENDPOINT, params)
+
+        response, _, _ = self.parse_response(
+            response,
+            "Data list retrieval failed: Code: {code} - Message: {msg}"
+        )
+
+        return response
+        
+    def data_binding_list(self, store_id: str, page: int, size: int) -> dict:
+        """
+        Gets a list of data items bound to labels.
+
+        Args:
+            store_id (str): Store ID
+            page (int): Page number for pagination
+            size (int): Number of items per page
+
+        Returns:
+            dict: Dictionary containing bound data information and pagination details
+
+        API URL: /esl/data/bindingList
+        Request Method: GET
+        """
+        params = {
+            "storeId": store_id,
+            "page": page,
+            "size": size
+        }
+
+        response = self.get(self.DATA_BINDING_LIST_ENDPOINT, params)
+
+        response, _, _ = self.parse_response(
+            response,
+            "Data binding list retrieval failed: Code: {code} - Message: {msg}"
+        )
+
+        return response
+        
+    # Template additional methods
+    def template_add(self, store_id: str, template_name: str, content: str) -> str:
+        """
+        Adds a new template to the system.
+
+        Args:
+            store_id (str): Store ID
+            template_name (str): Template name
+            content (str): Template content
+
+        Returns:
+            str: Template ID if successful
+
+        API URL: /esl/template/add
+        Request Method: POST
+        """
+        data = {
+            "storeId": store_id,
+            "templateName": template_name,
+            "content": content
+        }
+
+        response = self.post(self.TEMPLATE_ADD_ENDPOINT, data)
+
+        response, _, _ = self.parse_response(
+            response,
+            "Template add failed: Code: {code} - Message: {msg}"
+        )
+
+        return response.get("data", {}).get("templateId", "")
+
+    def template_update(self, template_id: str, store_id: str, template_name: str, content: str) -> str:
+        """
+        Updates an existing template.
+
+        Args:
+            template_id (str): Template ID
+            store_id (str): Store ID
+            template_name (str): Updated template name
+            content (str): Updated template content
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/template/update
+        Request Method: PUT
+        """
+        data = {
+            "id": template_id,
+            "storeId": store_id,
+            "templateName": template_name,
+            "content": content
+        }
+
+        response = self.put(self.TEMPLATE_UPDATE_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Template update failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def template_delete(self, template_id: str, store_id: str) -> str:
+        """
+        Deletes a template from the system.
+
+        Args:
+            template_id (str): Template ID
+            store_id (str): Store ID
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/template/delete
+        Request Method: GET
+        """
+        params = {
+            "id": template_id,
+            "storeId": store_id
+        }
+
+        response = self.get(self.TEMPLATE_DELETE_ENDPOINT, params)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Template delete failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+        
+    # Gateway additional methods
+    def gateway_restart(self, gateway_id: str, store_id: str) -> str:
+        """
+        Restarts a specific gateway.
+
+        Args:
+            gateway_id (str): Gateway ID
+            store_id (str): Store ID
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/gateway/restart
+        Request Method: GET
+        """
+        params = {
+            "id": gateway_id,
+            "storeId": store_id
+        }
+
+        response = self.get(self.GATEWAY_RESTART_ENDPOINT, params)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Gateway restart failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def gateway_upgrade(self, gateway_id: str, store_id: str, firmware_version: str) -> str:
+        """
+        Upgrades gateway firmware.
+
+        Args:
+            gateway_id (str): Gateway ID
+            store_id (str): Store ID
+            firmware_version (str): Firmware version to upgrade to
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/gateway/upgrade
+        Request Method: POST
+        """
+        data = {
+            "gatewayId": gateway_id,
+            "storeId": store_id,
+            "firmwareVersion": firmware_version
+        }
+
+        response = self.post(self.GATEWAY_UPGRADE_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Gateway upgrade failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+        
+    # Label additional methods
+    def label_unbinding(self, label_id: str, store_id: str) -> str:
+        """
+        Unbinds a label from its product/data association.
+
+        Args:
+            label_id (str): Label ID
+            store_id (str): Store ID
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/label/unbinding
+        Request Method: GET
+        """
+        params = {
+            "labelId": label_id,
+            "storeId": store_id
+        }
+
+        response = self.get(self.LABEL_UNBINDING_ENDPOINT, params)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Label unbinding failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def label_upgrade(self, label_ids: list, store_id: str, firmware_version: str) -> str:
+        """
+        Upgrades label firmware.
+
+        Args:
+            label_ids (list): List of label IDs to upgrade
+            store_id (str): Store ID
+            firmware_version (str): Firmware version to upgrade to
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/label/upgrade
+        Request Method: POST
+        """
+        data = {
+            "labelIds": label_ids,
+            "storeId": store_id,
+            "firmwareVersion": firmware_version
+        }
+
+        response = self.post(self.LABEL_UPGRADE_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Label upgrade failed: Code: {code} - Message: {msg}"
+        )
+
+        return msg
+
+    def label_find_by_mac(self, mac: str, store_id: str) -> dict:
+        """
+        Finds a label by its MAC address.
+
+        Args:
+            mac (str): Label MAC address
+            store_id (str): Store ID
+
+        Returns:
+            dict: Label information
+
+        API URL: /esl/label/findByMac
+        Request Method: GET
+        """
+        params = {
+            "mac": mac,
+            "storeId": store_id
+        }
+
+        response = self.get(self.LABEL_FIND_BY_MAC_ENDPOINT, params)
+
+        response, _, _ = self.parse_response(
+            response,
+            "Label find by MAC failed: Code: {code} - Message: {msg}"
+        )
+
+        return response.get("data", {})
+
+    def label_flash(self, label_id: str, store_id: str, flash_mode: int) -> str:
+        """
+        Flashes the label LED for visual identification.
+
+        Args:
+            label_id (str): Label ID
+            store_id (str): Store ID
+            flash_mode (int): LED flash mode (e.g., 1 for flashing, 0 for static)
+
+        Returns:
+            str: Success message from the API
+
+        API URL: /esl/label/flash
+        Request Method: POST
+        """
+        data = {
+            "labelId": label_id,
+            "storeId": store_id,
+            "flashMode": flash_mode
+        }
+
+        response = self.post(self.LABEL_FLASH_ENDPOINT, data)
+
+        _, _, msg = self.parse_response(
+            response,
+            "Label flash failed: Code: {code} - Message: {msg}"
         )
 
         return msg
