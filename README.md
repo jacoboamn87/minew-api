@@ -9,10 +9,11 @@ This library provides a clean, Pythonic interface to the Minew Cloud Platform AP
 ## Features
 
 - Full coverage of Minew Cloud Platform API endpoints
+- Resource-based architecture for better code organization
+- Strong typing with comprehensive type annotations
 - Authentication and token management
 - Clean error handling with custom exceptions
 - Comprehensive documentation with examples
-- Type annotations for better IDE support
 
 ## Installation
 
@@ -27,7 +28,7 @@ pip install -e ".[dev]"
 ## Quick Start
 
 ```python
-from minew_api.client import MinewAPIClient
+from minew_api import MinewAPIClient
 
 # Create client instance
 client = MinewAPIClient(
@@ -59,6 +60,16 @@ result = client.label_binding(
     store_id="your_store_id"
 )
 ```
+
+## Architecture
+
+The client is designed with a modular architecture:
+
+- **Main Client**: `MinewAPIClient` provides a unified interface to all API resources.
+- **Base Client**: `BaseClient` handles core functionality like authentication, request handling, and HTTP operations.
+- **Resource Classes**: Specialized classes for each API resource area (stores, gateways, labels, templates, data).
+
+This design improves maintainability, separating concerns and organizing code by functional area.
 
 ## API Resources
 
@@ -96,9 +107,10 @@ The client supports the following API resources:
 The client uses custom exceptions for clear error reporting:
 
 ```python
-from minew_api.exceptions import APIError
+from minew_api import MinewAPIClient, APIError
 
 try:
+    client = MinewAPIClient("username", "password")
     client.label_refresh(label_ids=["label_id"], store_id="store_id")
 except APIError as e:
     print(f"API error occurred: {e}")
