@@ -41,12 +41,15 @@ class LabelResource(BaseResource):
 
         response = self.client.post(self.LABEL_ADD_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Label add failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", {}).get("labelId", "")
+        data_dict = response_data.get("data", {})
+        if isinstance(data_dict, dict):
+            return data_dict.get("labelId", "")
+        return ""
 
     def list(self, store_id: str, page: int, size: int, condition: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -72,12 +75,12 @@ class LabelResource(BaseResource):
 
         response = self.client.get(self.LABEL_LIST_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Label list retrieval failed: Code: {code} - Message: {msg}"
         )
 
-        return response
+        return response_data
 
     def delete(self, label_id: str, store_id: str) -> str:
         """
@@ -251,12 +254,15 @@ class LabelResource(BaseResource):
 
         response = self.client.get(self.LABEL_FIND_BY_MAC_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Label find by MAC failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", {})
+        data_dict = response_data.get("data", {})
+        if isinstance(data_dict, dict):
+            return data_dict
+        return {}
 
     def flash(self, label_id: str, store_id: str, flash_mode: int) -> str:
         """
@@ -284,3 +290,4 @@ class LabelResource(BaseResource):
         )
 
         return msg
+

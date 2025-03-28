@@ -18,7 +18,7 @@ class BaseClient:
     def __init__(self, username: str, password: str, base_url: Optional[str] = None):
         """
         Initialize the client with credentials.
-        
+
         Args:
             username (str): User's username
             password (str): User's password
@@ -159,12 +159,12 @@ class BaseClient:
         if code != 200:
             raise APIError(err_msg.format(code=code, msg=msg))
 
-        return response_data, code, msg
+        return response_data, code, str(msg)
 
     def get(
-        self, 
-        endpoint: str, 
-        params: Optional[Dict[str, Any]] = None, 
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None
     ) -> requests.Response:
         """
@@ -182,9 +182,9 @@ class BaseClient:
         return self.request("get", endpoint, headers=headers, params=params)
 
     def post(
-        self, 
-        endpoint: str, 
-        data: Dict[str, Any], 
+        self,
+        endpoint: str,
+        data: Dict[str, Any],
         headers: Optional[Dict[str, str]] = None
     ) -> requests.Response:
         """
@@ -202,9 +202,9 @@ class BaseClient:
         return self.request("post", endpoint, headers=headers, data=data)
 
     def put(
-        self, 
-        endpoint: str, 
-        data: Dict[str, Any], 
+        self,
+        endpoint: str,
+        data: Dict[str, Any],
         headers: Optional[Dict[str, str]] = None
     ) -> requests.Response:
         """
@@ -222,9 +222,9 @@ class BaseClient:
         return self.request("put", endpoint, headers=headers, data=data)
 
     def delete(
-        self, 
-        endpoint: str, 
-        params: Optional[Dict[str, Any]] = None, 
+        self,
+        endpoint: str,
+        params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None
     ) -> requests.Response:
         """
@@ -261,14 +261,17 @@ class BaseClient:
 
         response = self.post(self.LOGIN_ENDPOINT, data)
 
-        response, _, _ = self.parse_response(
+        response_data, _, _ = self.parse_response(
             response,
             "Login failed: Code: {code} - Message: {msg}"
         )
 
-        self.token = response.get("data", {}).get("token")
-
-        return self.token
+        token = response_data.get("data", {}).get("token")
+        if token is None:
+            token = ""
+            
+        self.token = token
+        return token
 
 
 class BaseResource:
@@ -283,3 +286,5 @@ class BaseResource:
             client (BaseClient): API client instance
         """
         self.client = client
+
+

@@ -17,11 +17,10 @@ class MinewAPIClient:
     Handles authentication, token management, and request dispatch through
     resource-specific classes.
     """
-    
     def __init__(self, username: str, password: str, base_url: Optional[str] = None):
         """
         Initialize the client with credentials.
-        
+
         Args:
             username (str): User's username
             password (str): User's password
@@ -535,3 +534,4 @@ class MinewAPIClient:
             Dict[str, Any]: Dictionary containing bound data information and pagination details
         """
         return self._data.binding_list(store_id, page, size)
+

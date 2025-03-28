@@ -33,12 +33,17 @@ class StoreResource(BaseResource):
 
         response = self.client.post(self.STORE_ADD_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Store creation failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", {}).get("storeId")
+        data_dict = response_data.get("data", {})
+        if isinstance(data_dict, dict):
+            store_id = data_dict.get("storeId")
+            if store_id is not None:
+                return store_id
+        return ""
 
     def modify(self, id: str, name: str, address: str, active: int) -> str:
         """
@@ -101,18 +106,18 @@ class StoreResource(BaseResource):
         Returns:
             List[Dict[str, Any]]: API response containing store information
         """
-        params = {"active": active}
+        params: Dict[str, Any] = {"active": active}
         if condition:
             params["condition"] = condition
 
         response = self.client.get(self.STORE_LIST_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Retrieving information about stores failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", [])
+        return response_data.get("data", [])
 
     def get_warnings(self, store_id: str, screening: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -132,12 +137,12 @@ class StoreResource(BaseResource):
 
         response = self.client.get(self.STORE_WARNING_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Retrieving warning information failed: Code: {code} - Message: {msg}"
         )
 
-        return response
+        return response_data
 
     def get_logs(
         self,
@@ -173,9 +178,10 @@ class StoreResource(BaseResource):
 
         response = self.client.post(self.STORE_LOGS_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Retrieving operation log information failed: Code: {code} - Message: {msg}"
         )
 
-        return response
+        return response_data
+

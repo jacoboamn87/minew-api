@@ -60,12 +60,17 @@ class TemplateResource(BaseResource):
 
         response = self.client.get(self.TEMPLATE_LIST_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Template list retrieval failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", {}).get("rows", [])
+        data_dict = response_data.get("data", {})
+        if isinstance(data_dict, dict):
+            rows = data_dict.get("rows", [])
+            if isinstance(rows, list):
+                return rows
+        return []
 
     def preview_unbound(self, demo_name: str) -> str:
         """
@@ -81,12 +86,15 @@ class TemplateResource(BaseResource):
 
         response = self.client.post(self.TEMPLATE_PREVIEW_UNBOUND_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Template unbound preview failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", "")
+        data_value = response_data.get("data", "")
+        if isinstance(data_value, str):
+            return data_value
+        return ""
 
     def preview_bound(self, demo_name: str, data_id: str, store_id: str) -> str:
         """
@@ -104,12 +112,15 @@ class TemplateResource(BaseResource):
 
         response = self.client.post(self.TEMPLATE_PREVIEW_BOUND_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Template bound preview failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", "")
+        data_value = response_data.get("data", "")
+        if isinstance(data_value, str):
+            return data_value
+        return ""
 
     def add(self, store_id: str, template_name: str, content: str) -> str:
         """
@@ -131,12 +142,15 @@ class TemplateResource(BaseResource):
 
         response = self.client.post(self.TEMPLATE_ADD_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Template add failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", {}).get("templateId", "")
+        data_dict = response_data.get("data", {})
+        if isinstance(data_dict, dict):
+            return data_dict.get("templateId", "")
+        return ""
 
     def update(self, template_id: str, store_id: str, template_name: str, content: str) -> str:
         """
@@ -191,3 +205,4 @@ class TemplateResource(BaseResource):
         )
 
         return msg
+

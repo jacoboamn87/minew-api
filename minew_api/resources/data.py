@@ -34,12 +34,15 @@ class DataResource(BaseResource):
 
         response = self.client.post(self.DATA_ADD_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Data add failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("data", {}).get("dataId", "")
+        data_dict = response_data.get("data", {})
+        if isinstance(data_dict, dict):
+            return data_dict.get("dataId", "")
+        return ""
 
     def update(self, data_id: str, store_id: str, product_data: Dict[str, Any]) -> str:
         """
@@ -117,12 +120,12 @@ class DataResource(BaseResource):
 
         response = self.client.get(self.DATA_LIST_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Data list retrieval failed: Code: {code} - Message: {msg}"
         )
 
-        return response
+        return response_data
 
     def binding_list(self, store_id: str, page: int, size: int) -> Dict[str, Any]:
         """
@@ -144,9 +147,10 @@ class DataResource(BaseResource):
 
         response = self.client.get(self.DATA_BINDING_LIST_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Data binding list retrieval failed: Code: {code} - Message: {msg}"
         )
 
-        return response
+        return response_data
+

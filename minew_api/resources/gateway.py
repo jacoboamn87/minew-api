@@ -37,12 +37,12 @@ class GatewayResource(BaseResource):
 
         response = self.client.post(self.GATEWAY_ADD_ENDPOINT, data)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Gateway add failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("message", "Success")
+        return response_data.get("message", "Success")
 
     def delete(self, gateway_id: str, store_id: str) -> str:
         """
@@ -62,12 +62,12 @@ class GatewayResource(BaseResource):
 
         response = self.client.get(self.GATEWAY_DELETE_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Gateway delete failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("message", "Success")
+        return response_data.get("message", "Success")
 
     def list(self, store_id: str, page: int, size: int) -> List[Dict[str, Any]]:
         """
@@ -89,12 +89,12 @@ class GatewayResource(BaseResource):
 
         response = self.client.get(self.GATEWAY_LIST_ENDPOINT, params)
 
-        response, _, _ = self.client.parse_response(
+        response_data, _, _ = self.client.parse_response(
             response,
             "Gateway list retrieval failed: Code: {code} - Message: {msg}"
         )
 
-        return response.get("items", [])
+        return response_data.get("items", [])
 
     def modify(self, gateway_id: str, name: str) -> str:
         """
@@ -172,3 +172,4 @@ class GatewayResource(BaseResource):
         )
 
         return msg
+
